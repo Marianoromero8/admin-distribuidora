@@ -140,6 +140,19 @@ export const ApiAnnouncementSchema = z.object({
 });
 export type ApiAnnouncement = z.infer<typeof ApiAnnouncementSchema>;
 
+// Punto Fiesta — Announcements
+export const PFAnnouncementSchema = z.object({
+  id: z.string(),
+  type: z.enum(['POPUP', 'CAROUSEL']),
+  imageUrl: z.string(),
+  title: z.string().nullable(),
+  isActive: z.boolean(),
+  displayOrder: z.number(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type PFAnnouncement = z.infer<typeof PFAnnouncementSchema>;
+
 // Punto Fiesta — Categories
 export const PFCategorySchema = z.object({
   id: z.string(),
