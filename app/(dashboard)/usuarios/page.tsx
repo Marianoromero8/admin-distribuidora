@@ -166,7 +166,7 @@ export default function AdminUsuariosPage() {
         }
     };
 
-    const handleChangeRole = async (user: ApiUser, newRole: string) => {
+    const handleChangeRole = async (user: ApiUser, newRole: ApiUser['role']) => {
         if (newRole === user.role) return;
         const result = await Swal.fire({
             title: '¿Cambiar rol?',
@@ -578,7 +578,7 @@ export default function AdminUsuariosPage() {
                                 <span className="text-gray-400 w-24 shrink-0">Rol</span>
                                 <select
                                     value={selectedUser.role}
-                                    onChange={(e) => handleChangeRole(selectedUser, e.target.value)}
+                                    onChange={(e) => handleChangeRole(selectedUser, e.target.value as ApiUser['role'])}
                                     className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:border-[#4166e0] bg-white"
                                 >
                                     <option value="ADMIN">Admin</option>

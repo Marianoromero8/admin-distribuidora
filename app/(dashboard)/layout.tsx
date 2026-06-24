@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getUser, clearAuth, isSessionExpired, updateLastActivity } from '@/lib/auth';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -131,5 +131,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
             <main className="flex-1 p-10 overflow-auto">{children}</main>
         </div>
+    );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <Suspense>
+            <AdminLayoutInner>{children}</AdminLayoutInner>
+        </Suspense>
     );
 }

@@ -17,7 +17,7 @@ const ROLE_COLORS: Record<string, string> = {
 interface LowStockProduct {
     id: string;
     productName: string;
-    stock: number;
+    stock?: number;
     brand?: { brandName: string } | null;
 }
 
