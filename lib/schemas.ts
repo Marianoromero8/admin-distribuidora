@@ -164,6 +164,15 @@ export const PFSettingsSchema = z.object({
 });
 export type PFSettings = z.infer<typeof PFSettingsSchema>;
 
+// Punto Fiesta — WhatsApp connection status
+export const PFWhatsappStatusSchema = z.object({
+  ready: z.boolean(),
+  lastReadyAt: z.string().nullable(),
+  lastDisconnectedAt: z.string().nullable(),
+  lastDisconnectReason: z.string().nullable(),
+});
+export type PFWhatsappStatus = z.infer<typeof PFWhatsappStatusSchema>;
+
 // Punto Fiesta — Categories
 export const PFCategorySchema = z.object({
   id: z.string(),
