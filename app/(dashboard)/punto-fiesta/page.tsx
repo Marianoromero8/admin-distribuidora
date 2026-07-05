@@ -22,8 +22,29 @@ import {
   replacePFAnnouncementImage,
   deletePFAnnouncement,
 } from "@/services/pfAnnouncementService";
-import type { PFOrder, PaginatedPFOrders, PFProduct, PFCategory, PFAnnouncement } from "@/lib/schemas";
-import { ChevronDown, ChevronUp, Plus, Pencil, Trash2, ImageIcon, Search, X, Upload, ToggleLeft, ToggleRight } from "lucide-react";
+import { getPFSettings, updatePFSettings } from "@/services/pfSettingsService";
+import type {
+  PFOrder,
+  PaginatedPFOrders,
+  PFProduct,
+  PFCategory,
+  PFAnnouncement,
+  PFSettings,
+} from "@/lib/schemas";
+import {
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Pencil,
+  Trash2,
+  ImageIcon,
+  Search,
+  X,
+  Upload,
+  ToggleLeft,
+  ToggleRight,
+  Info,
+} from "lucide-react";
 import Swal from "sweetalert2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1416,12 +1437,166 @@ interface FinancialStats {
   periodAcceptedAmount: number;
 }
 
+// ─── Payment info modal (Alias / CBU / Titular / CUIL / Teléfono) ────────────
+
+const SETTINGS_FIELDS: { key: keyof PFSettingsForm; label: string }[] = [
+  { key: "alias", label: "Alias" },
+  { key: "cbu", label: "CBU" },
+  { key: "accountHolderName", label: "Titular" },
+  { key: "cuil", label: "CUIL/CUIT" },
+  { key: "phone", label: "Teléfono" },
+];
+
+type PFSettingsForm = {
+  accountHolderName: string;
+  cuil: string;
+  alias: string;
+  cbu: string;
+  phone: string;
+};
+
+function PaymentInfoModal({ onClose }: { onClose: () => void }) {
+  const [settings, setSettings] = useState<PFSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<PFSettingsForm>({
+    accountHolderName: "",
+    cuil: "",
+    alias: "",
+    cbu: "",
+    phone: "",
+  });
+
+  useEffect(() => {
+    getPFSettings()
+      .then((data) => {
+        setSettings(data);
+        setForm({
+          accountHolderName: data.accountHolderName,
+          cuil: data.cuil,
+          alias: data.alias,
+          cbu: data.cbu,
+          phone: data.phone,
+        });
+      })
+      .catch(() => Swal.fire("Error", "No se pudieron cargar los datos", "error"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updated = await updatePFSettings(form);
+      setSettings(updated);
+      setEditing(false);
+      Swal.fire("Guardado", "Los datos fueron actualizados", "success");
+    } catch {
+      Swal.fire("Error", "No se pudieron guardar los cambios", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (settings) {
+      setForm({
+        accountHolderName: settings.accountHolderName,
+        cuil: settings.cuil,
+        alias: settings.alias,
+        cbu: settings.cbu,
+        phone: settings.phone,
+      });
+    }
+    setEditing(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">Datos de pago</h2>
+          <div className="flex items-center gap-3">
+            {!loading && !editing && (
+              <button
+                onClick={() => setEditing(true)}
+                className="text-gray-400 hover:text-[#044389] transition-colors"
+                title="Editar"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Cerrar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        ) : editing ? (
+          <div className="flex flex-col gap-3">
+            {SETTINGS_FIELDS.map(({ key, label }) => (
+              <div key={key}>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                  {label}
+                </label>
+                <input
+                  value={form[key]}
+                  onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#044389]"
+                />
+              </div>
+            ))}
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 bg-[#044389] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#033070] disabled:opacity-50"
+              >
+                {saving ? "Guardando..." : "Guardar"}
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                className="flex-1 border border-gray-300 text-gray-600 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {SETTINGS_FIELDS.map(({ key, label }) => (
+              <div key={key} className="flex justify-between gap-4 text-sm py-1 border-b border-gray-100">
+                <span className="text-gray-400">{label}</span>
+                <span className="text-gray-800 font-medium text-right">
+                  {settings?.[key] || "—"}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
   const [stats, setStats] = useState<PFStats | null>(null);
   const [financial, setFinancial] = useState<FinancialStats | null>(null);
   const [period, setPeriod] = useState<Period>("month");
   const [loading, setLoading] = useState(true);
   const [financialLoading, setFinancialLoading] = useState(true);
+  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -1480,6 +1655,18 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
 
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowInfo(true)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-[#044389] uppercase tracking-wide hover:underline"
+        >
+          <Info className="h-4 w-4" />
+          Info
+        </button>
+      </div>
+
+      {showInfo && <PaymentInfoModal onClose={() => setShowInfo(false)} />}
+
       {/* ── Ingresos ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <Card className="border-gray-200 bg-indigo-50">

@@ -153,6 +153,17 @@ export const PFAnnouncementSchema = z.object({
 });
 export type PFAnnouncement = z.infer<typeof PFAnnouncementSchema>;
 
+// Punto Fiesta — Settings (datos de pago)
+export const PFSettingsSchema = z.object({
+  id: z.string(),
+  accountHolderName: z.string(),
+  cuil: z.string(),
+  alias: z.string(),
+  cbu: z.string(),
+  phone: z.string(),
+});
+export type PFSettings = z.infer<typeof PFSettingsSchema>;
+
 // Punto Fiesta — Categories
 export const PFCategorySchema = z.object({
   id: z.string(),
