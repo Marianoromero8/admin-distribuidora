@@ -23,6 +23,7 @@ import {
   deletePFAnnouncement,
 } from "@/services/pfAnnouncementService";
 import { getPFSettings, updatePFSettings } from "@/services/pfSettingsService";
+import { getWhatsAppStatus } from "@/services/pfWhatsappService";
 import type {
   PFOrder,
   PaginatedPFOrders,
@@ -44,6 +45,7 @@ import {
   ToggleLeft,
   ToggleRight,
   Info,
+  AlertTriangle,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1597,6 +1599,21 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
   const [loading, setLoading] = useState(true);
   const [financialLoading, setFinancialLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
+  const [waConnected, setWaConnected] = useState(true);
+
+  useEffect(() => {
+    async function checkWhatsapp() {
+      try {
+        const status = await getWhatsAppStatus();
+        setWaConnected(status.ready);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    checkWhatsapp();
+    const interval = setInterval(checkWhatsapp, 30_000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -1655,6 +1672,16 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
 
   return (
     <div>
+      {!waConnected && (
+        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-4">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <p className="text-sm font-medium">
+            WhatsApp desconectado para mensajes automáticos — los clientes no están
+            recibiendo la confirmación de pago. Contactá a soporte técnico.
+          </p>
+        </div>
+      )}
+
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setShowInfo(true)}
