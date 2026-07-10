@@ -1716,57 +1716,59 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [all, pending, accepted, paid, declined, products, categories] = await Promise.all([
-          getPFOrders({ limit: 1 }),
-          getPFOrders({ status: "PENDING", limit: 1 }),
-          getPFOrders({ status: "ACCEPTED", limit: 1 }),
-          getPFOrders({ status: "PAID", limit: 1 }),
-          getPFOrders({ status: "DECLINED", limit: 1 }),
-          getPFProducts({ all: true }),
-          getPFCategories(),
-        ]);
+  const loadStats = useCallback(async () => {
+    try {
+      const [all, pending, accepted, paid, declined, products, categories] = await Promise.all([
+        getPFOrders({ limit: 1 }),
+        getPFOrders({ status: "PENDING", limit: 1 }),
+        getPFOrders({ status: "ACCEPTED", limit: 1 }),
+        getPFOrders({ status: "PAID", limit: 1 }),
+        getPFOrders({ status: "DECLINED", limit: 1 }),
+        getPFProducts({ all: true }),
+        getPFCategories(),
+      ]);
 
-        const activeProducts = products.filter((p) => p.active);
-        const lowStock = activeProducts
-          .filter((p) => p.stock < 5)
-          .sort((a, b) => a.stock - b.stock);
+      const activeProducts = products.filter((p) => p.active);
+      const lowStock = activeProducts
+        .filter((p) => p.stock < 5)
+        .sort((a, b) => a.stock - b.stock);
 
-        setStats({
-          total: all.total,
-          pending: pending.total,
-          accepted: accepted.total,
-          paid: paid.total,
-          declined: declined.total,
-          totalProducts: products.length,
-          activeProducts: activeProducts.length,
-          totalCategories: categories.length,
-          lowStock,
-        });
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+      setStats({
+        total: all.total,
+        pending: pending.total,
+        accepted: accepted.total,
+        paid: paid.total,
+        declined: declined.total,
+        totalProducts: products.length,
+        activeProducts: activeProducts.length,
+        totalCategories: categories.length,
+        lowStock,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, [refreshSignal]);
+  }, []);
 
   useEffect(() => {
-    async function loadFinancial() {
-      setFinancialLoading(true);
-      try {
-        setFinancial(await getPFOrderStats(period));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setFinancialLoading(false);
-      }
+    loadStats();
+  }, [refreshSignal, loadStats]);
+
+  const loadFinancial = useCallback(async () => {
+    setFinancialLoading(true);
+    try {
+      setFinancial(await getPFOrderStats(period));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setFinancialLoading(false);
     }
+  }, [period]);
+
+  useEffect(() => {
     loadFinancial();
-  }, [period, refreshSignal]);
+  }, [refreshSignal, loadFinancial]);
 
   const fmt = (n: number) =>
     n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -1792,7 +1794,11 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
       {showQrModal && (
         <WhatsAppQrModal
           onClose={() => setShowQrModal(false)}
-          onConnected={() => setWaConnected(true)}
+          onConnected={() => {
+            setWaConnected(true);
+            loadStats();
+            loadFinancial();
+          }}
         />
       )}
 
