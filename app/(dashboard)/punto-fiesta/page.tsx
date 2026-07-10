@@ -23,7 +23,7 @@ import {
   deletePFAnnouncement,
 } from "@/services/pfAnnouncementService";
 import { getPFSettings, updatePFSettings } from "@/services/pfSettingsService";
-import { getWhatsAppStatus } from "@/services/pfWhatsappService";
+import { getWhatsAppStatus, getWhatsAppQr, reconnectWhatsApp } from "@/services/pfWhatsappService";
 import type {
   PFOrder,
   PaginatedPFOrders,
@@ -1457,6 +1457,106 @@ type PFSettingsForm = {
   phone: string;
 };
 
+function WhatsAppQrModal({
+  onClose,
+  onConnected,
+}: {
+  onClose: () => void;
+  onConnected: () => void;
+}) {
+  const [qr, setQr] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let qrInterval: ReturnType<typeof setInterval> | undefined;
+    let statusInterval: ReturnType<typeof setInterval> | undefined;
+
+    async function start() {
+      try {
+        await reconnectWhatsApp();
+      } catch (e) {
+        const message = e instanceof Error ? e.message : "No se pudo iniciar la conexión";
+        if (message.includes("ya está conectado")) {
+          if (!cancelled) {
+            onConnected();
+            onClose();
+          }
+          return;
+        }
+        if (!cancelled) setError(message);
+        return;
+      }
+
+      if (cancelled) return;
+
+      qrInterval = setInterval(async () => {
+        try {
+          const nextQr = await getWhatsAppQr();
+          if (!cancelled && nextQr) setQr(nextQr);
+        } catch {
+          // sigue reintentando
+        }
+      }, 2000);
+
+      statusInterval = setInterval(async () => {
+        try {
+          const status = await getWhatsAppStatus();
+          if (!cancelled && status.ready) {
+            onConnected();
+            onClose();
+          }
+        } catch {
+          // sigue reintentando
+        }
+      }, 2000);
+    }
+
+    start();
+
+    return () => {
+      cancelled = true;
+      clearInterval(qrInterval);
+      clearInterval(statusInterval);
+    };
+  }, [onClose, onConnected]);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">Conectar WhatsApp</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Cerrar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : qr ? (
+          <div className="flex flex-col items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qr} alt="Código QR de WhatsApp" className="h-56 w-56" />
+            <p className="text-sm text-gray-500 text-center">
+              Escaneá este código con WhatsApp en el teléfono de la empresa (Dispositivos
+              vinculados → Vincular un dispositivo).
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-10">
+            <Skeleton className="h-48 w-48" />
+            <p className="text-sm text-gray-500">Generando código QR...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PaymentInfoModal({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = useState<PFSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1599,6 +1699,7 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
   const [loading, setLoading] = useState(true);
   const [financialLoading, setFinancialLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [waConnected, setWaConnected] = useState(true);
 
   useEffect(() => {
@@ -1675,11 +1776,24 @@ function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
       {!waConnected && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-4">
           <AlertTriangle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">
+          <p className="text-sm font-medium flex-1">
             WhatsApp desconectado para mensajes automáticos — los clientes no están
             recibiendo la confirmación de pago. Contactá a soporte técnico.
           </p>
+          <button
+            onClick={() => setShowQrModal(true)}
+            className="shrink-0 bg-red-600 text-white text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded hover:bg-red-700 transition-colors"
+          >
+            Conectar
+          </button>
         </div>
+      )}
+
+      {showQrModal && (
+        <WhatsAppQrModal
+          onClose={() => setShowQrModal(false)}
+          onConnected={() => setWaConnected(true)}
+        />
       )}
 
       <div className="flex justify-end mb-4">
