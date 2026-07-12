@@ -193,6 +193,7 @@ export type PFCategory = z.infer<typeof PFCategorySchema>;
 // Punto Fiesta — Products
 export const PFProductSchema = z.object({
   id: z.string(),
+  code: z.string().nullable().optional(),
   name: z.string(),
   description: z.string().nullable(),
   price: z.coerce.number(),

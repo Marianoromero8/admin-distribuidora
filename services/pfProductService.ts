@@ -12,6 +12,7 @@ export async function getPFProducts(params: { all?: boolean } = {}): Promise<PFP
 }
 
 export async function createPFProduct(data: {
+    code?: string;
     name: string;
     description?: string | null;
     price: number;
@@ -27,6 +28,7 @@ export async function createPFProduct(data: {
 }
 
 export async function updatePFProduct(id: string, data: {
+    code?: string;
     name?: string;
     description?: string | null;
     price?: number;
