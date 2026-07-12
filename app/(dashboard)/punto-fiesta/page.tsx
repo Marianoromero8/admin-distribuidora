@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getPFOrders, updatePFOrderStatus, getPFOrderStats } from "@/services/pfOrderService";
 import {
@@ -739,15 +739,25 @@ function ProductsTab() {
   const [saving, setSaving] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [uploadingImageId, setUploadingImageId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   // Form state
   const [form, setForm] = useState({
+    code: "",
     name: "",
     description: "",
     price: "",
     categoryId: "",
     stock: "0",
   });
+
+  const filteredProducts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter(
+      (p) => p.code?.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+    );
+  }, [products, search]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -769,6 +779,7 @@ function ProductsTab() {
   const openCreate = () => {
     setEditingProduct(null);
     setForm({
+      code: "",
       name: "",
       description: "",
       price: "",
@@ -781,6 +792,7 @@ function ProductsTab() {
   const openEdit = (p: PFProduct) => {
     setEditingProduct(p);
     setForm({
+      code: p.code ?? "",
       name: p.name,
       description: p.description ?? "",
       price: String(p.price),
@@ -795,6 +807,7 @@ function ProductsTab() {
     setSaving(true);
     try {
       const payload = {
+        code: form.code.trim() || undefined,
         name: form.name.trim(),
         description: form.description.trim() || null,
         price: parseFloat(form.price),
@@ -884,10 +897,16 @@ function ProductsTab() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-sm text-gray-500">
-          {products.length} producto{products.length !== 1 ? "s" : ""}
+      <div className="flex justify-between items-center mb-4 gap-3">
+        <p className="text-sm text-gray-500 whitespace-nowrap">
+          {filteredProducts.length} producto{filteredProducts.length !== 1 ? "s" : ""}
         </p>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por código o nombre..."
+          className="flex-1 max-w-xs border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#4166e0]"
+        />
         <button
           onClick={openCreate}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4166e0] text-white text-sm rounded font-medium hover:bg-[#3456c8] transition-colors"
@@ -903,6 +922,7 @@ function ProductsTab() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
+                <th className="text-left px-4 py-3 text-gray-600 font-medium">Código</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Producto</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Categoría</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Precio</th>
@@ -912,8 +932,9 @@ function ProductsTab() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {filteredProducts.map((p) => (
                 <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-500 font-mono">{p.code ?? "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative w-9 h-9 shrink-0">
@@ -1043,9 +1064,11 @@ function ProductsTab() {
               ))}
             </tbody>
           </table>
-          {products.length === 0 && (
+          {filteredProducts.length === 0 && (
             <p className="text-center py-10 text-gray-400">
-              No hay productos. Creá el primero con el botón de arriba.
+              {products.length === 0
+                ? "No hay productos. Creá el primero con el botón de arriba."
+                : "Ningún producto coincide con la búsqueda."}
             </p>
           )}
         </div>
@@ -1073,6 +1096,17 @@ function ProductsTab() {
               {editingProduct ? "Editar producto" : "Nuevo producto"}
             </h2>
             <div className="flex flex-col gap-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">Código</label>
+                <input
+                  value={form.code}
+                  onChange={(e) =>
+                    setForm({ ...form, code: e.target.value.replace(/\D/g, "").slice(0, 4) })
+                  }
+                  className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#4166e0] font-mono"
+                  placeholder={editingProduct ? "" : "Auto"}
+                />
+              </div>
               <div>
                 <label className="text-xs font-medium text-gray-600 block mb-1">Nombre *</label>
                 <input
