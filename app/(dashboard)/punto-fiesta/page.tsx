@@ -55,6 +55,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type Tab = "summary" | "orders" | "products" | "categories" | "ads";
 type StatusFilter = "ALL" | "PENDING" | "ACCEPTED" | "DECLINED" | "PAID";
+type DeliveryFilter = "ALL" | "PICKUP" | "DELIVERY";
 
 const PAGE_SIZE = 15;
 
@@ -67,6 +68,22 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
   { key: "PAID", label: "Cobrados" },
   { key: "DECLINED", label: "Rechazados" },
 ];
+
+const DELIVERY_TABS: { key: DeliveryFilter; label: string }[] = [
+  { key: "ALL", label: "Todos" },
+  { key: "PICKUP", label: "🏪 Retiro en el local" },
+  { key: "DELIVERY", label: "🚚 Envío a domicilio" },
+];
+
+const DELIVERY_LABEL: Record<string, string> = {
+  PICKUP: "🏪 Retiro en el local",
+  DELIVERY: "🚚 Envío a domicilio",
+};
+
+const DELIVERY_ICON: Record<string, string> = {
+  PICKUP: "🏪",
+  DELIVERY: "🚚",
+};
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
@@ -202,6 +219,7 @@ function OrdersTab({
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [deliveryFilter, setDeliveryFilter] = useState<DeliveryFilter>("ALL");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -222,14 +240,22 @@ function OrdersTab({
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, dateFrom, dateTo, statusFilter]);
+  }, [search, dateFrom, dateTo, statusFilter, deliveryFilter]);
 
   const load = useCallback(
-    async (p: number, status: StatusFilter, srch: string, from: string, to: string) => {
+    async (
+      p: number,
+      status: StatusFilter,
+      delivery: DeliveryFilter,
+      srch: string,
+      from: string,
+      to: string
+    ) => {
       setLoading(true);
       try {
         const params: Parameters<typeof getPFOrders>[0] = { page: p, limit: PAGE_SIZE };
         if (status !== "ALL") params.status = status;
+        if (delivery !== "ALL") params.deliveryMethod = delivery;
         if (srch) params.search = srch;
         if (from) params.dateFrom = from;
         if (to) params.dateTo = to;
@@ -247,19 +273,21 @@ function OrdersTab({
   );
 
   useEffect(() => {
-    load(page, statusFilter, search, dateFrom, dateTo);
-  }, [page, statusFilter, search, dateFrom, dateTo, load]);
+    load(page, statusFilter, deliveryFilter, search, dateFrom, dateTo);
+  }, [page, statusFilter, deliveryFilter, search, dateFrom, dateTo, load]);
 
   // Refs for refresh signal (reads latest state without re-subscribing)
   const loadRef = useRef(load);
   const pageRef = useRef(page);
   const filterRef = useRef(statusFilter);
+  const deliveryFilterRef = useRef(deliveryFilter);
   const searchRef = useRef(search);
   const dateFromRef = useRef(dateFrom);
   const dateToRef = useRef(dateTo);
   useEffect(() => { loadRef.current = load; }, [load]);
   useEffect(() => { pageRef.current = page; }, [page]);
   useEffect(() => { filterRef.current = statusFilter; }, [statusFilter]);
+  useEffect(() => { deliveryFilterRef.current = deliveryFilter; }, [deliveryFilter]);
   useEffect(() => { searchRef.current = search; }, [search]);
   useEffect(() => { dateFromRef.current = dateFrom; }, [dateFrom]);
   useEffect(() => { dateToRef.current = dateTo; }, [dateTo]);
@@ -269,6 +297,7 @@ function OrdersTab({
     loadRef.current(
       pageRef.current,
       filterRef.current,
+      deliveryFilterRef.current,
       searchRef.current,
       dateFromRef.current,
       dateToRef.current
@@ -286,6 +315,11 @@ function OrdersTab({
 
   const handleTabChange = (tab: StatusFilter) => {
     setStatusFilter(tab);
+    setExpandedId(null);
+  };
+
+  const handleDeliveryTabChange = (tab: DeliveryFilter) => {
+    setDeliveryFilter(tab);
     setExpandedId(null);
   };
 
@@ -345,7 +379,7 @@ function OrdersTab({
           showConfirmButton: false,
         });
       }
-      load(page, statusFilter, search, dateFrom, dateTo);
+      load(page, statusFilter, deliveryFilter, search, dateFrom, dateTo);
     } catch (err) {
       Swal.fire("Error", err instanceof Error ? err.message : "Error al procesar", "error");
     } finally {
@@ -374,7 +408,7 @@ function OrdersTab({
         timer: 2000,
         showConfirmButton: false,
       });
-      load(page, statusFilter, search, dateFrom, dateTo);
+      load(page, statusFilter, deliveryFilter, search, dateFrom, dateTo);
     } catch (err) {
       Swal.fire("Error", err instanceof Error ? err.message : "Error al procesar", "error");
     } finally {
@@ -414,7 +448,7 @@ function OrdersTab({
           showConfirmButton: false,
         });
       }
-      load(page, statusFilter, search, dateFrom, dateTo);
+      load(page, statusFilter, deliveryFilter, search, dateFrom, dateTo);
     } catch (err) {
       Swal.fire("Error", err instanceof Error ? err.message : "Error al procesar", "error");
     } finally {
@@ -433,6 +467,22 @@ function OrdersTab({
               statusFilter === tab.key
                 ? "border-[#4166e0] text-[#4166e0]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-1 mb-4">
+        {DELIVERY_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleDeliveryTabChange(tab.key)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+              deliveryFilter === tab.key
+                ? "bg-[#4166e0] text-white border-[#4166e0]"
+                : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
             }`}
           >
             {tab.label}
@@ -495,6 +545,7 @@ function OrdersTab({
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Teléfono</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Total</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-gray-600 font-medium">Entrega</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Fecha</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Acciones</th>
               </tr>
@@ -537,6 +588,9 @@ function OrdersTab({
                       >
                         {STATUS_LABEL[order.status]}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-lg" title={DELIVERY_LABEL[order.deliveryMethod]}>
+                      {DELIVERY_ICON[order.deliveryMethod]}
                     </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
                       {formatDate(order.createdAt)}
@@ -584,7 +638,16 @@ function OrdersTab({
                       key={`${order.id}-detail`}
                       className="bg-blue-50/40 border-b border-gray-100"
                     >
-                      <td colSpan={7} className="px-8 py-4">
+                      <td colSpan={8} className="px-8 py-4">
+                        <span
+                          className={`inline-block mb-3 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            order.deliveryMethod === "PICKUP"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-sky-100 text-sky-700"
+                          }`}
+                        >
+                          {DELIVERY_LABEL[order.deliveryMethod]}
+                        </span>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm mb-4">
                           <div>
                             <span className="text-gray-400">DNI:</span>{" "}
@@ -657,6 +720,15 @@ function OrdersTab({
                 {acceptModal.order.clientPhone}
               </a>
             </p>
+            <span
+              className={`inline-block mb-4 px-2.5 py-1 rounded-full text-xs font-medium ${
+                acceptModal.order.deliveryMethod === "PICKUP"
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-sky-100 text-sky-700"
+              }`}
+            >
+              {DELIVERY_LABEL[acceptModal.order.deliveryMethod]}
+            </span>
 
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               Productos — destildá los que no tenés
@@ -749,6 +821,7 @@ function ProductsTab() {
     price: "",
     categoryId: "",
     stock: "0",
+    featured: false,
   });
 
   const filteredProducts = useMemo(() => {
@@ -785,6 +858,7 @@ function ProductsTab() {
       price: "",
       categoryId: categories[0]?.id ?? "",
       stock: "0",
+      featured: false,
     });
     setShowModal(true);
   };
@@ -798,6 +872,7 @@ function ProductsTab() {
       price: String(p.price),
       categoryId: p.categoryId,
       stock: String(p.stock),
+      featured: p.featured,
     });
     setShowModal(true);
   };
@@ -813,6 +888,7 @@ function ProductsTab() {
         price: parseFloat(form.price),
         categoryId: form.categoryId,
         stock: parseInt(form.stock) || 0,
+        featured: form.featured,
       };
       if (editingProduct) {
         await updatePFProduct(editingProduct.id, payload);
@@ -856,6 +932,15 @@ function ProductsTab() {
     try {
       await updatePFProduct(p.id, { active: !p.active });
       setProducts((prev) => prev.map((x) => (x.id === p.id ? { ...x, active: !x.active } : x)));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleToggleFeatured = async (p: PFProduct) => {
+    try {
+      await updatePFProduct(p.id, { featured: !p.featured });
+      setProducts((prev) => prev.map((x) => (x.id === p.id ? { ...x, featured: !x.featured } : x)));
     } catch (e) {
       console.error(e);
     }
@@ -928,6 +1013,7 @@ function ProductsTab() {
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Precio</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Stock</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-gray-600 font-medium">Destacado</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Acciones</th>
               </tr>
             </thead>
@@ -1039,6 +1125,15 @@ function ProductsTab() {
                       className={`px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${p.active ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-600 hover:bg-red-200"}`}
                     >
                       {p.active ? "Activo" : "Inactivo"}
+                    </button>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleToggleFeatured(p)}
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${p.featured ? "bg-amber-100 text-amber-700 hover:bg-amber-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+                    >
+                      {p.featured ? "⭐ Sí" : "— No"}
                     </button>
                   </td>
 
@@ -1168,6 +1263,15 @@ function ProductsTab() {
                     ))}
                 </select>
               </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={form.featured}
+                  onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-[#4166e0] focus:ring-[#4166e0]"
+                />
+                Destacado (aparece en &quot;Los más pedidos&quot;)
+              </label>
             </div>
             <div className="flex justify-end gap-2 mt-5">
               <button
@@ -1481,6 +1585,10 @@ const SETTINGS_FIELDS: { key: keyof PFSettingsForm; label: string }[] = [
   { key: "accountHolderName", label: "Titular" },
   { key: "cuil", label: "CUIL/CUIT" },
   { key: "phone", label: "Teléfono" },
+  { key: "address", label: "Dirección de retiro" },
+  { key: "instagramUrl", label: "Instagram (link)" },
+  { key: "facebookUrl", label: "Facebook (link)" },
+  { key: "whatsappUrl", label: "WhatsApp (link wa.me)" },
 ];
 
 type PFSettingsForm = {
@@ -1489,6 +1597,10 @@ type PFSettingsForm = {
   alias: string;
   cbu: string;
   phone: string;
+  address: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  whatsappUrl: string;
 };
 
 function WhatsAppQrModal({
@@ -1602,6 +1714,10 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
     alias: "",
     cbu: "",
     phone: "",
+    address: "",
+    instagramUrl: "",
+    facebookUrl: "",
+    whatsappUrl: "",
   });
 
   useEffect(() => {
@@ -1614,6 +1730,10 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
           alias: data.alias,
           cbu: data.cbu,
           phone: data.phone,
+          address: data.address,
+          instagramUrl: data.instagramUrl,
+          facebookUrl: data.facebookUrl,
+          whatsappUrl: data.whatsappUrl,
         });
       })
       .catch(() => Swal.fire("Error", "No se pudieron cargar los datos", "error"))
@@ -1642,6 +1762,10 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
         alias: settings.alias,
         cbu: settings.cbu,
         phone: settings.phone,
+        address: settings.address,
+        instagramUrl: settings.instagramUrl,
+        facebookUrl: settings.facebookUrl,
+        whatsappUrl: settings.whatsappUrl,
       });
     }
     setEditing(false);
@@ -1651,7 +1775,7 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">Datos de pago</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Datos del negocio</h2>
           <div className="flex items-center gap-3">
             {!loading && !editing && (
               <button

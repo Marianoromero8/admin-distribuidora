@@ -13,6 +13,7 @@ export async function getPFOrders(
     page?: number;
     limit?: number;
     status?: "PENDING" | "ACCEPTED" | "DECLINED" | "PAID";
+    deliveryMethod?: "PICKUP" | "DELIVERY";
     search?: string;
     dateFrom?: string;
     dateTo?: string;
@@ -23,6 +24,7 @@ export async function getPFOrders(
     limit: String(params.limit ?? 15),
   });
   if (params.status) query.set("status", params.status);
+  if (params.deliveryMethod) query.set("deliveryMethod", params.deliveryMethod);
   if (params.search) query.set("search", params.search);
   if (params.dateFrom) query.set("dateFrom", params.dateFrom);
   if (params.dateTo) query.set("dateTo", params.dateTo);

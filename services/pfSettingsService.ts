@@ -14,6 +14,10 @@ export async function updatePFSettings(data: {
   alias: string;
   cbu: string;
   phone: string;
+  address: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  whatsappUrl: string;
 }): Promise<PFSettings> {
   const res = await fetchWithAuth(BASE, {
     method: "PUT",
