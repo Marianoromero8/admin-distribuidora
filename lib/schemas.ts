@@ -161,6 +161,10 @@ export const PFSettingsSchema = z.object({
   alias: z.string(),
   cbu: z.string(),
   phone: z.string(),
+  address: z.string(),
+  instagramUrl: z.string(),
+  facebookUrl: z.string(),
+  whatsappUrl: z.string(),
 });
 export type PFSettings = z.infer<typeof PFSettingsSchema>;
 
@@ -201,6 +205,7 @@ export const PFProductSchema = z.object({
   categoryId: z.string(),
   stock: z.coerce.number(),
   active: z.boolean(),
+  featured: z.boolean(),
   category: PFCategorySchema.optional().nullable(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -235,6 +240,7 @@ export const PFOrderSchema = z.object({
   clientDni: z.string(),
   clientCuil: z.string(),
   clientAddress: z.string(),
+  deliveryMethod: z.enum(["PICKUP", "DELIVERY"]),
   total: z.coerce.number(),
   status: z.enum(["PENDING", "ACCEPTED", "DECLINED", "PAID"]),
   note: z.string().nullable(),

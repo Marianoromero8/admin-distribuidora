@@ -18,6 +18,7 @@ export async function createPFProduct(data: {
     price: number;
     categoryId: string;
     stock?: number;
+    featured?: boolean;
 }): Promise<PFProduct> {
     const res = await fetchWithAuth(`${BASE}/products`, {
         method: 'POST',
@@ -35,6 +36,7 @@ export async function updatePFProduct(id: string, data: {
     categoryId?: string;
     stock?: number;
     active?: boolean;
+    featured?: boolean;
 }): Promise<PFProduct> {
     const res = await fetchWithAuth(`${BASE}/products/${id}`, {
         method: 'PATCH',
