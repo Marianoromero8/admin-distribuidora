@@ -4,7 +4,7 @@ import type { PFWhatsappStatus } from "@/lib/schemas";
 const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/punto-fiesta/whatsapp`;
 
 export async function getWhatsAppStatus(): Promise<PFWhatsappStatus> {
-  const res = await fetch(`${BASE}/status`);
+  const res = await fetchWithAuth(`${BASE}/status`);
   return (await res.json()).data;
 }
 

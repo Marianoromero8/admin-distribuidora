@@ -7,6 +7,7 @@ import {
     deleteCategory,
 } from '@/services/categoryService';
 import type { ApiCategory } from '@/lib/schemas';
+import { useRequireAdmin } from '@/lib/auth';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -18,6 +19,7 @@ import {
 import Swal from 'sweetalert2';
 
 export default function AdminCategoriesPage() {
+    useRequireAdmin();
     const [categories, setCategories] = useState<ApiCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);

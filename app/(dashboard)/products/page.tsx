@@ -37,7 +37,6 @@ const emptyForm = {
     productImage: '',
     stock: '0',
     isFeatured: false,
-    isPuntoFiesta: false,
 };
 
 export default function AdminProductsPage() {
@@ -116,7 +115,6 @@ export default function AdminProductsPage() {
             productImage: p.productImage ?? '',
             stock: String(p.stock ?? 0),
             isFeatured: p.isFeatured ?? false,
-            isPuntoFiesta: p.isPuntoFiesta ?? false,
         });
         setImageFile(null);
         setImagePreview(p.productImage ?? '');
@@ -137,36 +135,43 @@ export default function AdminProductsPage() {
         e.preventDefault();
         setError('');
         setSaving(true);
+
+        const payload = {
+            productName: form.productName,
+            brandId: form.brandId,
+            categoryId: form.categoryId,
+            price: parseFloat(form.price),
+            contentValue: parseFloat(form.contentValue),
+            contentUnit: form.contentUnit,
+            packQuantity: parseInt(form.packQuantity),
+            productImage: imageFile ? undefined : (form.productImage || null),
+            stock: parseInt(form.stock),
+            isFeatured: form.isFeatured,
+        };
+        let savedId = editingId;
         try {
-            const payload = {
-                productName: form.productName,
-                brandId: form.brandId,
-                categoryId: form.categoryId,
-                price: parseFloat(form.price),
-                contentValue: parseFloat(form.contentValue),
-                contentUnit: form.contentUnit,
-                packQuantity: parseInt(form.packQuantity),
-                productImage: imageFile ? undefined : (form.productImage || null),
-                stock: parseInt(form.stock),
-                isFeatured: form.isFeatured,
-                isPuntoFiesta: form.isPuntoFiesta,
-            };
-            let savedId = editingId;
             if (editingId) {
                 await updateProduct(editingId, payload);
             } else {
                 const created = await createProduct(payload);
                 savedId = created.id;
             }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Error al guardar');
+            setSaving(false);
+            return;
+        }
+
+        try {
             if (imageFile && savedId) {
                 await uploadProductImage(savedId, imageFile);
             }
             setShowForm(false);
-            loadProducts(page, filterBrand, filterAvailable);
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Error al guardar');
+            setError('El producto se guardó, pero la imagen no se pudo subir. Podés reintentar editando el producto.');
         } finally {
             setSaving(false);
+            loadProducts(page, filterBrand, filterAvailable);
         }
     };
 
@@ -185,7 +190,7 @@ export default function AdminProductsPage() {
         try {
             await deleteProduct(id);
             loadProducts(page, filterBrand, filterAvailable);
-        } catch (err) { console.error(err); }
+        } catch (err) { Swal.fire('Error', err instanceof Error ? err.message : 'No se pudo deshabilitar', 'error'); }
     };
 
     const handleEnable = async (id: string) => {
@@ -203,7 +208,7 @@ export default function AdminProductsPage() {
         try {
             await updateProduct(id, { available: true });
             loadProducts(page, filterBrand, filterAvailable);
-        } catch (err) { console.error(err); }
+        } catch (err) { Swal.fire('Error', err instanceof Error ? err.message : 'No se pudo habilitar', 'error'); }
     };
 
     const handlePermanentDelete = async (id: string, name: string) => {
@@ -223,7 +228,7 @@ export default function AdminProductsPage() {
             const newPage = products.length === 1 && page > 1 ? page - 1 : page;
             setPage(newPage);
             loadProducts(newPage, filterBrand, filterAvailable);
-        } catch (err) { console.error(err); }
+        } catch (err) { Swal.fire('Error', err instanceof Error ? err.message : 'No se pudo eliminar', 'error'); }
     };
 
     const field = (key: keyof typeof form, value: string | boolean) =>
@@ -235,7 +240,7 @@ export default function AdminProductsPage() {
         try {
             await updateProduct(id, { stock: newStock });
             setProducts((prev) => prev.map((p) => p.id === id ? { ...p, stock: newStock } : p));
-        } catch (e) { console.error(e); }
+        } catch (e) { Swal.fire('Error', e instanceof Error ? e.message : 'No se pudo guardar el stock', 'error'); }
         setEditingStockId(null);
     };
 
@@ -366,10 +371,6 @@ export default function AdminProductsPage() {
                                 <input type="checkbox" id="isFeatured" checked={form.isFeatured} onChange={(e) => field('isFeatured', e.target.checked)} className="accent-[#4166e0]" />
                                 <label htmlFor="isFeatured" className="text-sm text-gray-600">Destacado</label>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <input type="checkbox" id="isPuntoFiesta" checked={form.isPuntoFiesta as boolean} onChange={(e) => field('isPuntoFiesta', e.target.checked)} className="accent-[#4166e0]" />
-                                <label htmlFor="isPuntoFiesta" className="text-sm text-gray-600">Punto Fiesta</label>
-                            </div>
                         </div>
                         {error && <p className="col-span-2 text-red-500 text-sm">{error}</p>}
                         <div className="col-span-2 flex gap-3">
@@ -410,7 +411,7 @@ export default function AdminProductsPage() {
                                     <td className="px-4 py-3 text-gray-500">{formatPresentation(p)}</td>
                                     <td className="px-4 py-3 text-gray-500">${p.price}</td>
                                     <td className="px-4 py-3">
-                                        {editingStockId === p.id ? (
+                                        {userIsAdmin && editingStockId === p.id ? (
                                             <input
                                                 type="number"
                                                 min={0}
@@ -426,9 +427,9 @@ export default function AdminProductsPage() {
                                             />
                                         ) : (
                                             <span
-                                                onClick={() => { setEditingStockId(p.id); setEditingStockValue(String(p.stock ?? 0)); }}
-                                                className={`cursor-pointer font-medium px-2 py-0.5 rounded hover:bg-gray-100 transition-colors ${(p.stock ?? 0) === 0 ? 'text-red-500' : (p.stock ?? 0) < 10 ? 'text-orange-500' : 'text-gray-700'}`}
-                                                title="Click para editar stock"
+                                                onClick={userIsAdmin ? () => { setEditingStockId(p.id); setEditingStockValue(String(p.stock ?? 0)); } : undefined}
+                                                className={`font-medium px-2 py-0.5 rounded transition-colors ${userIsAdmin ? 'cursor-pointer hover:bg-gray-100' : ''} ${(p.stock ?? 0) === 0 ? 'text-red-500' : (p.stock ?? 0) < 10 ? 'text-orange-500' : 'text-gray-700'}`}
+                                                title={userIsAdmin ? 'Click para editar stock' : undefined}
                                             >
                                                 {p.stock ?? 0}
                                             </span>

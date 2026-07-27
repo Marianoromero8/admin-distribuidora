@@ -9,7 +9,7 @@ import {
     deleteBrand,
 } from '@/services/brandService';
 import type { ApiBrand } from '@/lib/schemas';
-import { isAdmin } from '@/lib/auth';
+import { isAdmin, useRequireAdmin } from '@/lib/auth';
 import { MoreVertical, Pencil, Power, PowerOff, Trash2 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -23,6 +23,7 @@ import Swal from 'sweetalert2';
 const PAGE_SIZE = 15;
 
 export default function AdminBrandsPage() {
+    useRequireAdmin();
     const [allBrands, setAllBrands] = useState<ApiBrand[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -90,24 +91,32 @@ export default function AdminBrandsPage() {
         e.preventDefault();
         setError('');
         setSaving(true);
+
+        const data = { brandName: name, brandImage: imageFile ? undefined : (image || null) };
+        let savedId = editingId;
         try {
-            const data = { brandName: name, brandImage: imageFile ? undefined : (image || null) };
-            let savedId = editingId;
             if (editingId) {
                 await updateBrand(editingId, data);
             } else {
                 const created = await createBrand(data);
                 savedId = created.id;
             }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Error al guardar');
+            setSaving(false);
+            return;
+        }
+
+        try {
             if (imageFile && savedId) {
                 await uploadBrandImage(savedId, imageFile);
             }
             setShowForm(false);
-            loadAll(page);
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Error al guardar');
+            setError('La marca se guardó, pero la imagen no se pudo subir. Podés reintentar editando la marca.');
         } finally {
             setSaving(false);
+            loadAll(page);
         }
     };
 
@@ -129,7 +138,7 @@ export default function AdminBrandsPage() {
         try {
             await toggleBrandStatus(brand.id);
             loadAll(page);
-        } catch (err) { console.error(err); }
+        } catch (err) { Swal.fire('Error', err instanceof Error ? err.message : 'No se pudo actualizar', 'error'); }
     };
 
     const handleDelete = async (brand: ApiBrand) => {
@@ -149,7 +158,7 @@ export default function AdminBrandsPage() {
             const newPage = allBrands.length === 1 && page > 1 ? page - 1 : page;
             setPage(newPage);
             loadAll(newPage);
-        } catch (err) { console.error(err); }
+        } catch (err) { Swal.fire('Error', err instanceof Error ? err.message : 'No se pudo eliminar', 'error'); }
     };
 
     const startItem = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;

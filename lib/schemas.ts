@@ -27,10 +27,8 @@ export const ApiProductSchema = z.object({
   contentUnit: z.enum(["gr", "kg", "ml", "lts", "un"]),
   packQuantity: z.coerce.number(),
   stock: z.coerce.number().optional(),
-  pfStock: z.coerce.number().optional(),
   available: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
-  isPuntoFiesta: z.boolean().optional(),
   brand: ApiBrandSchema.optional().nullable(),
   category: ApiCategorySchema.optional().nullable(),
   createdAt: z.string().optional(),
@@ -168,6 +166,17 @@ export const PFSettingsSchema = z.object({
 });
 export type PFSettings = z.infer<typeof PFSettingsSchema>;
 
+// Punto Fiesta — Mensajes de WhatsApp (plantillas)
+export const PFMessageTemplateSchema = z.object({
+  id: z.string(),
+  key: z.string(),
+  label: z.string(),
+  body: z.string(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type PFMessageTemplate = z.infer<typeof PFMessageTemplateSchema>;
+
 // Punto Fiesta — WhatsApp connection status
 export const PFWhatsappStatusSchema = z.object({
   ready: z.boolean(),
@@ -233,6 +242,7 @@ export const PFOrderItemSchema = z.object({
 
 export const PFOrderSchema = z.object({
   id: z.string(),
+  orderNumber: z.number(),
   clientName: z.string(),
   clientSurname: z.string(),
   clientEmail: z.string(),

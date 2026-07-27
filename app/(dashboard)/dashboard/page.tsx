@@ -6,6 +6,7 @@ import { getAllProductsAdmin } from '@/services/productService';
 import { getAllBrandsAdminUnpaginated } from '@/services/brandService';
 import { getCategories } from '@/services/categoryService';
 import { getAllUsers } from '@/services/userService';
+import { isAdmin } from '@/lib/auth';
 
 const ROLE_LABELS: Record<string, string> = { ADMIN: 'Admins', EMPLOYEE: 'Empleados', CLIENT: 'Clientes' };
 const ROLE_COLORS: Record<string, string> = {
@@ -35,6 +36,9 @@ interface Stats {
 export default function AdminHomePage() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
+
+    useEffect(() => { setUserIsAdmin(isAdmin()); }, []);
 
     useEffect(() => {
         async function load() {
@@ -45,7 +49,7 @@ export default function AdminHomePage() {
                     getAllProductsAdmin({ page: 1, limit: 9999 }),
                     getAllBrandsAdminUnpaginated(),
                     getCategories(),
-                    getAllUsers(),
+                    isAdmin() ? getAllUsers() : Promise.resolve([]),
                 ]);
 
                 const usersByRole: Record<string, number> = {};
@@ -102,52 +106,56 @@ export default function AdminHomePage() {
                     value={stats?.totalCategories}
                     accent="#4166e0"
                 />
-                <StatCard
-                    title="Usuarios"
-                    loading={loading}
-                    value={stats ? Object.values(stats.usersByRole).reduce((a, b) => a + b, 0) : undefined}
-                    accent="#4166e0"
-                />
+                {userIsAdmin && (
+                    <StatCard
+                        title="Usuarios"
+                        loading={loading}
+                        value={stats ? Object.values(stats.usersByRole).reduce((a, b) => a + b, 0) : undefined}
+                        accent="#4166e0"
+                    />
+                )}
             </div>
 
             {/* Users breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border-gray-200">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Usuarios por rol</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <div className="space-y-2">
-                                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-8 w-full" />)}
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {(['ADMIN', 'EMPLOYEE', 'CLIENT'] as const).map((role) => {
-                                    const count = stats?.usersByRole[role] ?? 0;
-                                    const total = stats ? Object.values(stats.usersByRole).reduce((a, b) => a + b, 0) : 1;
-                                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                                    return (
-                                        <div key={role}>
-                                            <div className="flex justify-between items-center mb-1">
-                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[role]}`}>
-                                                    {ROLE_LABELS[role]}
-                                                </span>
-                                                <span className="text-sm font-semibold text-gray-700">{count}</span>
+            <div className={`grid grid-cols-1 ${userIsAdmin ? 'lg:grid-cols-2' : ''} gap-4`}>
+                {userIsAdmin && (
+                    <Card className="border-gray-200">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Usuarios por rol</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {loading ? (
+                                <div className="space-y-2">
+                                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-8 w-full" />)}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {(['ADMIN', 'EMPLOYEE', 'CLIENT'] as const).map((role) => {
+                                        const count = stats?.usersByRole[role] ?? 0;
+                                        const total = stats ? Object.values(stats.usersByRole).reduce((a, b) => a + b, 0) : 1;
+                                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                                        return (
+                                            <div key={role}>
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[role]}`}>
+                                                        {ROLE_LABELS[role]}
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-gray-700">{count}</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                    <div
+                                                        className="h-1.5 rounded-full bg-[#4166e0] transition-all duration-500"
+                                                        style={{ width: `${pct}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="w-full bg-gray-100 rounded-full h-1.5">
-                                                <div
-                                                    className="h-1.5 rounded-full bg-[#4166e0] transition-all duration-500"
-                                                    style={{ width: `${pct}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 <Card className="border-gray-200">
                     <CardHeader className="pb-3">
