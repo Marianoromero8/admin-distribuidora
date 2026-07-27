@@ -8,6 +8,16 @@ export async function getAllUsers(): Promise<ApiUser[]> {
     return (await res.json()).data;
 }
 
+export async function getMe(): Promise<ApiUser> {
+    const res = await fetchWithAuth(`${BASE}/users/me`);
+    return (await res.json()).data;
+}
+
+export async function getMySchedule(): Promise<ApiSchedule[]> {
+    const res = await fetchWithAuth(`${BASE}/users/me/schedule`);
+    return (await res.json()).data;
+}
+
 export async function createEmployee(data: {
     name: string;
     lastname: string;

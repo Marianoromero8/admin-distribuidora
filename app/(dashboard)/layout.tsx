@@ -4,6 +4,8 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getUser, clearAuth, isSessionExpired, updateLastActivity } from '@/lib/auth';
 
+const ADMIN_ONLY_PATHS = ['/categories', '/brands', '/usuarios', '/anuncios', '/punto-fiesta'];
+
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -20,6 +22,13 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         if (isSessionExpired()) {
             clearAuth();
             router.replace('/login');
+            return;
+        }
+        if (user.role !== 'ADMIN' && ADMIN_ONLY_PATHS.some((p) => pathname.startsWith(p))) {
+            // Bloquea el mount de la página ADMIN-only antes de que dispare sus
+            // propios fetches (si no, un EMPLOYEE que entra por URL directa ve
+            // un borbotón de 403 mientras el hook de la página redirige).
+            router.replace('/dashboard');
             return;
         }
         updateLastActivity();
@@ -41,7 +50,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         { href: '/brands', label: 'Marcas', roles: ['ADMIN'] },
         { href: '/usuarios', label: 'Usuarios', roles: ['ADMIN'] },
         { href: '/anuncios', label: 'Anuncios', roles: ['ADMIN'] },
-        { href: '/punto-fiesta', label: 'Punto Fiesta', roles: ['ADMIN', 'EMPLOYEE'] },
+        { href: '/punto-fiesta', label: 'Punto Fiesta', roles: ['ADMIN'] },
+        { href: '/perfil', label: 'Perfil', roles: ['ADMIN', 'EMPLOYEE'] },
     ].filter((item) => !userRole || item.roles.includes(userRole));
 
     const isPF = pathname.startsWith('/punto-fiesta');

@@ -13,6 +13,7 @@ import {
 } from '@/services/userService';
 import { getAllZones, createZone, deleteZone } from '@/services/zoneService';
 import type { ApiUser, ApiZone, ApiSchedule } from '@/lib/schemas';
+import { useRequireAdmin, getUser } from '@/lib/auth';
 import { MoreVertical, Power, PowerOff, Trash2, X, Plus, ChevronRight } from 'lucide-react';
 import {
     DropdownMenu,
@@ -51,6 +52,7 @@ const emptyForm = {
 };
 
 export default function AdminUsuariosPage() {
+    useRequireAdmin();
     const [users, setUsers] = useState<ApiUser[]>([]);
     const [zones, setZones] = useState<ApiZone[]>([]);
     const [loading, setLoading] = useState(true);
@@ -168,6 +170,10 @@ export default function AdminUsuariosPage() {
 
     const handleChangeRole = async (user: ApiUser, newRole: ApiUser['role']) => {
         if (newRole === user.role) return;
+        if (getUser()?.id === user.id) {
+            Swal.fire('No permitido', 'No podés cambiar tu propio rol — pedile a otro admin que lo haga.', 'warning');
+            return;
+        }
         const result = await Swal.fire({
             title: '¿Cambiar rol?',
             text: `${user.name} ${user.lastname} pasará a ser ${ROLE_LABELS[newRole] ?? newRole}.`,
@@ -183,7 +189,7 @@ export default function AdminUsuariosPage() {
             await updateUserRole(user.id, newRole);
             setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, role: newRole } : u));
             setSelectedUser((prev) => prev ? { ...prev, role: newRole } : null);
-        } catch (e) { console.error(e); }
+        } catch (e) { Swal.fire('Error', e instanceof Error ? e.message : 'No se pudo cambiar el rol', 'error'); }
     };
 
     const handleDelete = async (user: ApiUser) => {

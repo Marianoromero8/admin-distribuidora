@@ -14,6 +14,7 @@ import {
   deleteBanner,
 } from "@/services/bannerService";
 import type { ApiAnnouncement, ApiBanner } from "@/lib/schemas";
+import { useRequireAdmin } from "@/lib/auth";
 import {
   Trash2,
   Upload,
@@ -27,6 +28,7 @@ import Swal from "sweetalert2";
 type Tab = "videos" | "popup";
 
 export default function AdminAnunciosPage() {
+  useRequireAdmin();
   const [tab, setTab] = useState<Tab>("videos");
 
   // ── Videos ─────────────────────────────────────────────────────

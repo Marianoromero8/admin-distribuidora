@@ -51,12 +51,10 @@ export async function getAllProductsAdmin(params: {
     limit?: number;
     brandId?: string;
     available?: boolean;
-    isPuntoFiesta?: boolean;
 } = {}): Promise<PaginatedProducts> {
     const query = new URLSearchParams({ page: String(params.page ?? 1), limit: String(params.limit ?? 15) });
     if (params.brandId) query.set('brandId', params.brandId);
     if (params.available !== undefined) query.set('available', String(params.available));
-    if (params.isPuntoFiesta !== undefined) query.set('isPuntoFiesta', String(params.isPuntoFiesta));
     const res = await fetchWithAuth(`${BASE}/products/admin?${query}`);
     const json = await res.json();
     return ProductsApiResponseSchema.parse(json).data;
@@ -95,10 +93,8 @@ export async function updateProduct(id: string, data: Partial<{
     packQuantity: number;
     productImage: string | null;
     stock: number;
-    pfStock: number;
     available: boolean;
     isFeatured: boolean;
-    isPuntoFiesta: boolean;
 }>): Promise<ApiProduct> {
     const res = await fetchWithAuth(`${BASE}/products/${id}`, {
         method: 'PUT',
