@@ -303,7 +303,7 @@ export default function AdminUsuariosPage() {
     const usedDayZonePairs = new Set(schedules.map((s) => `${s.dayOfWeek}::${s.zoneId}`));
 
     return (
-        <div className="flex gap-6 h-full">
+        <div className="flex flex-col lg:flex-row gap-6 h-full">
             {/* Left panel */}
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-6">
@@ -339,7 +339,7 @@ export default function AdminUsuariosPage() {
                 {showForm && (
                     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                         <h2 className="font-semibold text-gray-700 mb-4">Nuevo empleado</h2>
-                        <form onSubmit={handleCreateEmployee} className="grid grid-cols-2 gap-4">
+                        <form onSubmit={handleCreateEmployee} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm text-gray-600 mb-1">Nombre</label>
                                 <input value={form.name} onChange={(e) => field('name', e.target.value)} required className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#4166e0]" />
@@ -390,6 +390,7 @@ export default function AdminUsuariosPage() {
                     <p className="text-gray-500">Cargando...</p>
                 ) : (
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
@@ -452,6 +453,7 @@ export default function AdminUsuariosPage() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                         {filteredUsers.length === 0 && <p className="text-center py-8 text-gray-400">No hay usuarios.</p>}
                     </div>
                 )}
@@ -500,7 +502,7 @@ export default function AdminUsuariosPage() {
 
             {/* Right panel — user detail */}
             {selectedUser && (
-                <div className="w-96 shrink-0 bg-white rounded-lg border border-gray-200 p-6 self-start sticky top-6">
+                <div className="w-full lg:w-96 shrink-0 bg-white rounded-lg border border-gray-200 p-6 self-start lg:sticky lg:top-6">
                     <div className="flex justify-between items-start mb-5">
                         <div>
                             <h2 className="font-bold text-gray-800 text-lg">{selectedUser.name} {selectedUser.lastname}</h2>
@@ -516,7 +518,7 @@ export default function AdminUsuariosPage() {
                     {/* User data */}
                     {editMode ? (
                         <form onSubmit={handleSaveEdit} className="space-y-3 text-sm mb-6">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label className="block text-xs text-gray-500 mb-1">Nombre</label>
                                     <input value={editForm.name} onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} required className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#4166e0]" />
@@ -534,7 +536,7 @@ export default function AdminUsuariosPage() {
                                 <label className="block text-xs text-gray-500 mb-1">Teléfono</label>
                                 <input value={editForm.phone} onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))} className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#4166e0]" />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label className="block text-xs text-gray-500 mb-1">Tipo doc.</label>
                                     <select value={editForm.documentType} onChange={(e) => setEditForm((p) => ({ ...p, documentType: e.target.value }))} className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#4166e0] bg-white">
@@ -607,6 +609,7 @@ export default function AdminUsuariosPage() {
                         <p className="text-sm text-gray-400">Cargando horario...</p>
                     ) : (
                         <div className="border border-gray-200 rounded overflow-hidden mb-4">
+                            <div className="overflow-x-auto">
                             <table className="w-full text-xs">
                                 <thead className="bg-gray-50">
                                     <tr>
@@ -641,6 +644,7 @@ export default function AdminUsuariosPage() {
                                     })}
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     )}
 

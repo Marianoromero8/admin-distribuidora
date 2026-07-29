@@ -59,7 +59,7 @@ export default function PerfilPage() {
                         {ROLE_LABELS[user.role] ?? user.role}
                     </span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                     <div>
                         <span className="block text-gray-400 text-xs mb-0.5">Nombre</span>
                         <span className="text-gray-700">{user.name} {user.lastname}</span>
@@ -84,6 +84,7 @@ export default function PerfilPage() {
             <div className="bg-white rounded-lg border border-gray-200 p-6 max-w-xl">
                 <h2 className="font-semibold text-gray-700 mb-4">Mi horario semanal</h2>
                 <div className="border border-gray-200 rounded overflow-hidden">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50">
                             <tr>
@@ -111,6 +112,7 @@ export default function PerfilPage() {
                             })}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>

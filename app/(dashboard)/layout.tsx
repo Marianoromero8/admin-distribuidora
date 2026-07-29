@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
 import { getUser, clearAuth, isSessionExpired, updateLastActivity } from '@/lib/auth';
 
 const ADMIN_ONLY_PATHS = ['/categories', '/brands', '/usuarios', '/anuncios', '/punto-fiesta'];
@@ -12,6 +13,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const searchParams = useSearchParams();
     const [checked, setChecked] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    useEffect(() => {
+        setDrawerOpen(false);
+    }, [pathname, searchParams]);
 
     useEffect(() => {
         const user = getUser();
@@ -67,8 +73,34 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
     if (isPF) {
         return (
-            <div className="min-h-screen flex bg-gray-50">
-                <aside className="w-56 bg-[#044389] flex flex-col py-8 px-5 gap-1 shrink-0">
+            <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
+                <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-[#044389] shrink-0">
+                    <button onClick={() => setDrawerOpen(true)} aria-label="Abrir menú">
+                        <Menu className="h-6 w-6 text-white" />
+                    </button>
+                    <h2 className="font-bold text-[#FCFF4B] text-sm tracking-tight uppercase">
+                        Punto <span className="text-white">Fiesta</span>
+                    </h2>
+                    <div className="w-6" />
+                </header>
+                {drawerOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+                        onClick={() => setDrawerOpen(false)}
+                    />
+                )}
+                <aside
+                    className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#044389] flex flex-col py-8 px-5 gap-1 shrink-0 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:w-56 ${
+                        drawerOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
+                >
+                    <button
+                        onClick={() => setDrawerOpen(false)}
+                        className="lg:hidden absolute top-4 right-4 text-white/60 hover:text-white"
+                        aria-label="Cerrar menú"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
                     <h2 className="font-bold text-[#FCFF4B] text-base tracking-tight mb-1 uppercase leading-tight">
                         Punto<br /><span className="text-white">Fiesta</span>
                     </h2>
@@ -78,6 +110,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                         <Link
                             key={item.key}
                             href={`/punto-fiesta?tab=${item.key}`}
+                            onClick={() => setDrawerOpen(false)}
                             className={`px-3 py-2.5 text-[11px] uppercase tracking-[0.12em] font-medium transition-colors border-l-2 pl-2.5 ${
                                 pfTab === item.key
                                     ? 'text-[#FCFF4B] border-[#FCFF4B]'
@@ -89,6 +122,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     ))}
                     <Link
                         href="/"
+                        onClick={() => setDrawerOpen(false)}
                         className="mt-2 px-3 py-2.5 text-[11px] uppercase tracking-[0.12em] font-medium text-white/40 hover:text-white border-l-2 border-transparent pl-2.5 transition-colors"
                     >
                         ← SSG Distribuidora
@@ -102,14 +136,40 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                         </button>
                     </div>
                 </aside>
-                <main className="flex-1 p-10 overflow-auto">{children}</main>
+                <main className="flex-1 p-4 lg:p-10 overflow-auto">{children}</main>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex bg-[#f5f2eb]">
-            <aside className="w-56 bg-[#0f1628] flex flex-col py-8 px-5 gap-1 shrink-0">
+        <div className="min-h-screen flex flex-col lg:flex-row bg-[#f5f2eb]">
+            <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-[#0f1628] shrink-0">
+                <button onClick={() => setDrawerOpen(true)} aria-label="Abrir menú">
+                    <Menu className="h-6 w-6 text-white" />
+                </button>
+                <h2 className="font-syne text-white font-bold text-sm tracking-tight uppercase">
+                    SSG <span className="text-[#4166e0]">Admin</span>
+                </h2>
+                <div className="w-6" />
+            </header>
+            {drawerOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+                    onClick={() => setDrawerOpen(false)}
+                />
+            )}
+            <aside
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#0f1628] flex flex-col py-8 px-5 gap-1 shrink-0 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:w-56 ${
+                    drawerOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+            >
+                <button
+                    onClick={() => setDrawerOpen(false)}
+                    className="lg:hidden absolute top-4 right-4 text-white/40 hover:text-white"
+                    aria-label="Cerrar menú"
+                >
+                    <X className="h-5 w-5" />
+                </button>
                 <h2 className="font-syne text-white font-bold text-base tracking-tight mb-8 uppercase">
                     SSG<br /><span className="text-[#4166e0]">Admin</span>
                 </h2>
@@ -120,6 +180,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={() => setDrawerOpen(false)}
                             className={`px-3 py-2.5 text-[11px] uppercase tracking-[0.12em] font-medium transition-colors ${
                                 isActive
                                     ? 'text-white border-l-2 border-[#4166e0] pl-2.5'
@@ -139,7 +200,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     </button>
                 </div>
             </aside>
-            <main className="flex-1 p-10 overflow-auto">{children}</main>
+            <main className="flex-1 p-4 lg:p-10 overflow-auto">{children}</main>
         </div>
     );
 }

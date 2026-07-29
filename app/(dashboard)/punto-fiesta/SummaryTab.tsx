@@ -908,6 +908,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
               Todos los productos activos tienen stock suficiente.
             </p>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-y border-gray-200">
                 <tr>
@@ -940,6 +941,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </CardContent>
       </Card>

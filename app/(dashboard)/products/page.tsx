@@ -293,7 +293,7 @@ export default function AdminProductsPage() {
             {showForm && (
                 <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                     <h2 className="font-semibold text-gray-700 mb-4">{editingId ? 'Editar producto' : 'Nuevo producto'}</h2>
-                    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="col-span-2">
                             <label className="block text-sm text-gray-600 mb-1">Nombre</label>
                             <input value={form.productName} onChange={(e) => field('productName', e.target.value)} required className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#4166e0]" />
@@ -389,6 +389,7 @@ export default function AdminProductsPage() {
                 <p className="text-gray-500">Cargando...</p>
             ) : (
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
@@ -478,6 +479,7 @@ export default function AdminProductsPage() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                     {products.length === 0 && <p className="text-center py-8 text-gray-400">No hay productos.</p>}
 
                     {/* Paginación */}
