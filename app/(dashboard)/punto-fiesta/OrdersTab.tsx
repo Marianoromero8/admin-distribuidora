@@ -344,12 +344,12 @@ export function OrdersTab({
 
   return (
     <div>
-      <div className="flex gap-1 mb-4 border-b border-gray-200">
+      <div className="flex gap-1 mb-4 border-b border-gray-200 overflow-x-auto">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors shrink-0 ${
               statusFilter === tab.key
                 ? "border-[#4166e0] text-[#4166e0]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
@@ -423,6 +423,7 @@ export function OrdersTab({
         <p className="text-gray-500">Cargando...</p>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -593,6 +594,7 @@ export function OrdersTab({
               ))}
             </tbody>
           </table>
+          </div>
           {orders.length === 0 && (
             <p className="text-center py-10 text-gray-400">
               No hay pedidos{statusFilter !== "ALL" ? " en este estado" : ""}.
@@ -611,7 +613,7 @@ export function OrdersTab({
       {/* Accept modal — item selection */}
       {acceptModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 max-h-[85vh] overflow-y-auto">
             <h2 className="text-lg font-semibold text-gray-800 mb-1">
               Confirmar pedido{" "}
               <span className="text-gray-400 font-mono">

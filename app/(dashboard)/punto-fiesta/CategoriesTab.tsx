@@ -116,6 +116,7 @@ export function CategoriesTab() {
         <p className="text-gray-500">Cargando...</p>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -160,6 +161,7 @@ export function CategoriesTab() {
               ))}
             </tbody>
           </table>
+          </div>
           {categories.length === 0 && (
             <p className="text-center py-10 text-gray-400">
               No hay categorías. Creá la primera con el botón de arriba.

@@ -233,6 +233,7 @@ export default function AdminBrandsPage() {
                 <p className="text-gray-500">Cargando...</p>
             ) : (
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
@@ -290,6 +291,7 @@ export default function AdminBrandsPage() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                     {allBrands.length === 0 && <p className="text-center py-8 text-gray-400">No hay marcas.</p>}
 
                     {/* Paginación */}

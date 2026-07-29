@@ -210,6 +210,7 @@ export default function AdminHomePage() {
                     ) : stats?.lowStock.length === 0 ? (
                         <p className="text-sm text-gray-400 px-6 pb-4">Todos los productos activos tienen stock suficiente.</p>
                     ) : (
+                        <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 border-y border-gray-200">
                                 <tr>
@@ -236,6 +237,7 @@ export default function AdminHomePage() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </CardContent>
             </Card>
