@@ -68,6 +68,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         { key: 'orders', label: 'Pedidos' },
         { key: 'products', label: 'Productos' },
         { key: 'categories', label: 'Categorías' },
+        { key: 'clients', label: 'Clientes' },
         { key: 'ads', label: 'Anuncios' },
     ];
 

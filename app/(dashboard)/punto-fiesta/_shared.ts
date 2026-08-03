@@ -1,6 +1,6 @@
 // ─── Tipos, constantes y helpers compartidos entre los tabs de Punto Fiesta ──
 
-export type Tab = "summary" | "orders" | "products" | "categories" | "ads";
+export type Tab = "summary" | "orders" | "products" | "categories" | "clients" | "ads";
 export type StatusFilter = "ALL" | "PENDING" | "ACCEPTED" | "DECLINED" | "PAID";
 export type DeliveryFilter = "ALL" | "PICKUP" | "DELIVERY";
 
@@ -52,11 +52,16 @@ export function formatDate(dateStr?: string) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 }
 
 export function formatOrderNumber(n: number) {
   return `#${String(n).padStart(4, "0")}`;
+}
+
+export function fmtMoney(n: number) {
+  return `$${n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function whatsappLink(phone: string) {
