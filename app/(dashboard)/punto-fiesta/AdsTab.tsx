@@ -126,7 +126,7 @@ export function AdsTab() {
   };
 
   const isPopup = subTab === "popup";
-  const accentColor = "#044389";
+  const accentColor = "#000000";
 
   return (
     <div>
@@ -141,7 +141,7 @@ export function AdsTab() {
             }}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
               subTab === t
-                ? "border-[#044389] text-[#044389]"
+                ? "border-[#DC1414] text-[#DC1414]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -159,7 +159,7 @@ export function AdsTab() {
         </p>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="bg-[#044389] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#033070] transition-colors flex items-center gap-2 shrink-0"
+          className="bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#262626] transition-colors flex items-center gap-2 shrink-0"
         >
           <Plus className="h-4 w-4" />
           {isPopup ? "Nuevo slide" : "Nueva imagen"}
@@ -182,7 +182,7 @@ export function AdsTab() {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="Ej: Promo de verano"
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#044389]"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
               />
             </div>
             <div className="col-span-2 md:col-span-1">
@@ -192,13 +192,13 @@ export function AdsTab() {
                 min="0"
                 value={newOrder}
                 onChange={(e) => setNewOrder(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#044389]"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
               />
             </div>
             <div className="col-span-2">
               <label className="block text-sm text-gray-600 mb-1">Imagen *</label>
               <div className="flex gap-3 items-start">
-                <label className="flex-1 flex items-center gap-2 border border-dashed border-gray-300 rounded px-3 py-2 cursor-pointer hover:border-[#044389] transition-colors text-sm text-gray-500">
+                <label className="flex-1 flex items-center gap-2 border border-dashed border-gray-300 rounded px-3 py-2 cursor-pointer hover:border-black transition-colors text-sm text-gray-500">
                   <Upload className="h-4 w-4" />
                   <span>{newFile ? newFile.name : "Seleccionar imagen"}</span>
                   <input
@@ -226,7 +226,7 @@ export function AdsTab() {
               <button
                 type="submit"
                 disabled={!newFile || saving}
-                className="bg-[#044389] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#033070] disabled:opacity-50"
+                className="bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#262626] disabled:opacity-50"
               >
                 {saving ? "Guardando..." : "Crear"}
               </button>
@@ -258,7 +258,7 @@ export function AdsTab() {
               <div
                 key={item.id}
                 className={`bg-white rounded-lg border overflow-hidden ${
-                  item.isActive ? "border-[#044389]" : "border-gray-200"
+                  item.isActive ? "border-black" : "border-gray-200"
                 }`}
               >
                 {item.isActive && (
@@ -285,7 +285,7 @@ export function AdsTab() {
                       min="0"
                       defaultValue={item.displayOrder}
                       onBlur={(e) => handleOrderChange(item, e.target.value)}
-                      className="w-14 text-xs border border-gray-200 rounded px-1 py-0.5 text-center focus:outline-none focus:border-[#044389]"
+                      className="w-14 text-xs border border-gray-200 rounded px-1 py-0.5 text-center focus:outline-none focus:border-black"
                     />
                   </div>
                   <div className="flex items-center justify-between mt-3">
@@ -293,10 +293,10 @@ export function AdsTab() {
                       <button
                         onClick={() => handleToggle(item)}
                         title={item.isActive ? "Desactivar" : "Activar"}
-                        className="text-gray-400 hover:text-[#044389] transition-colors"
+                        className="text-gray-400 hover:text-black transition-colors"
                       >
                         {item.isActive ? (
-                          <ToggleRight className="h-6 w-6 text-[#044389]" />
+                          <ToggleRight className="h-6 w-6 text-black" />
                         ) : (
                           <ToggleLeft className="h-6 w-6" />
                         )}
@@ -308,7 +308,7 @@ export function AdsTab() {
                     <div className="flex items-center gap-2">
                       {replaceTarget === item.id ? (
                         <div className="flex items-center gap-1">
-                          <label className="text-xs text-[#044389] cursor-pointer underline">
+                          <label className="text-xs text-black cursor-pointer underline">
                             {replaceFile ? replaceFile.name.slice(0, 10) + "..." : "Elegir"}
                             <input
                               type="file"
@@ -320,7 +320,7 @@ export function AdsTab() {
                           <button
                             onClick={() => handleReplaceImage(item.id)}
                             disabled={!replaceFile}
-                            className="text-xs bg-[#044389] text-white px-2 py-0.5 rounded disabled:opacity-50"
+                            className="text-xs bg-black text-white px-2 py-0.5 rounded disabled:opacity-50"
                           >
                             OK
                           </button>
@@ -337,7 +337,7 @@ export function AdsTab() {
                       ) : (
                         <button
                           onClick={() => setReplaceTarget(item.id)}
-                          className="text-gray-400 hover:text-[#044389] transition-colors"
+                          className="text-gray-400 hover:text-black transition-colors"
                           title="Cambiar imagen"
                         >
                           <Upload className="h-4 w-4" />

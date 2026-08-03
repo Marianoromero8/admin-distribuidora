@@ -146,11 +146,11 @@ export default function PuntoFiestaPage() {
           {toasts.map((toast) => (
             <div
               key={toast.id}
-              className="flex items-start gap-3 bg-white border-l-4 border-[#044389] rounded-xl shadow-lg px-4 py-3 w-72"
+              className="flex items-start gap-3 bg-white border-l-4 border-black rounded-xl shadow-lg px-4 py-3 w-72"
             >
               <span className="text-xl mt-0.5">🛒</span>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-[#044389] uppercase tracking-wide">
+                <p className="text-xs font-bold text-black uppercase tracking-wide">
                   Nuevo pedido
                 </p>
                 <p className="text-sm font-semibold text-gray-800 truncate">
@@ -159,7 +159,7 @@ export default function PuntoFiestaPage() {
                 <p className="text-xs text-gray-500">${toast.total.toLocaleString("es-AR")}</p>
                 <button
                   onClick={() => handleToastClick(toast.id, toast.orderId)}
-                  className="mt-1.5 text-xs font-semibold text-[#044389] hover:underline"
+                  className="mt-1.5 text-xs font-semibold text-black hover:underline"
                 >
                   Ver pedido →
                 </button>
