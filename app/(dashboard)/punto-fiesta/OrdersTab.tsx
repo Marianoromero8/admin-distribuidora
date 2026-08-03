@@ -385,7 +385,7 @@ export function OrdersTab({
             placeholder="Buscar por nombre o número de pedido..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#044389]/30 focus:border-[#044389]"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/30 focus:border-black"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -395,7 +395,7 @@ export function OrdersTab({
             value={dateFrom}
             max={dateTo || undefined}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#044389]/30 focus:border-[#044389]"
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/30 focus:border-black"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -405,7 +405,7 @@ export function OrdersTab({
             value={dateTo}
             min={dateFrom || undefined}
             onChange={(e) => setDateTo(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#044389]/30 focus:border-[#044389]"
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/30 focus:border-black"
           />
         </div>
         {hasActiveFilters && (

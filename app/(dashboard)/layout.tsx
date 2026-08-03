@@ -74,11 +74,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     if (isPF) {
         return (
             <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-                <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-[#044389] shrink-0">
+                <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-black shrink-0">
                     <button onClick={() => setDrawerOpen(true)} aria-label="Abrir menú">
                         <Menu className="h-6 w-6 text-white" />
                     </button>
-                    <h2 className="font-bold text-[#FCFF4B] text-sm tracking-tight uppercase">
+                    <h2 className="font-bold text-[#FFC800] text-sm tracking-tight uppercase">
                         Punto <span className="text-white">Fiesta</span>
                     </h2>
                     <div className="w-6" />
@@ -90,7 +90,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     />
                 )}
                 <aside
-                    className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#044389] flex flex-col py-8 px-5 gap-1 shrink-0 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:w-56 ${
+                    className={`fixed inset-y-0 left-0 z-40 w-64 bg-black flex flex-col py-8 px-5 gap-1 shrink-0 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:w-56 ${
                         drawerOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
                 >
@@ -101,11 +101,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     >
                         <X className="h-5 w-5" />
                     </button>
-                    <h2 className="font-bold text-[#FCFF4B] text-base tracking-tight mb-1 uppercase leading-tight">
+                    <h2 className="font-bold text-[#FFC800] text-base tracking-tight mb-1 uppercase leading-tight">
                         Punto<br /><span className="text-white">Fiesta</span>
                     </h2>
                     <p className="text-[10px] text-white/30 uppercase tracking-widest mb-6">Dashboard</p>
-                    <div className="w-6 h-px bg-[#FCFF4B]/30 mb-6" />
+                    <div className="w-6 h-px bg-[#FFC800]/30 mb-6" />
                     {pfNavItems.map((item) => (
                         <Link
                             key={item.key}
@@ -113,7 +113,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                             onClick={() => setDrawerOpen(false)}
                             className={`px-3 py-2.5 text-[11px] uppercase tracking-[0.12em] font-medium transition-colors border-l-2 pl-2.5 ${
                                 pfTab === item.key
-                                    ? 'text-[#FCFF4B] border-[#FCFF4B]'
+                                    ? 'text-[#FFC800] border-[#FFC800]'
                                     : 'text-white/50 border-transparent hover:text-white/80'
                             }`}
                         >

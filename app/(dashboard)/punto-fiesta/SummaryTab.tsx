@@ -41,7 +41,7 @@ function PFStatCard({
   accent: string;
 }) {
   return (
-    <Card className="border-gray-200">
+    <Card className="border-gray-200 border-l-4" style={{ borderLeftColor: accent }}>
       <CardHeader className="pb-2">
         <CardTitle className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           {title}
@@ -284,7 +284,7 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
             {!loading && !editing && (
               <button
                 onClick={() => setEditing(true)}
-                className="text-gray-400 hover:text-[#044389] transition-colors"
+                className="text-gray-400 hover:text-black transition-colors"
                 title="Editar"
               >
                 <Pencil className="h-4 w-4" />
@@ -316,7 +316,7 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
                 <input
                   value={form[key]}
                   onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#044389]"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
                 />
               </div>
             ))}
@@ -324,7 +324,7 @@ function PaymentInfoModal({ onClose }: { onClose: () => void }) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-[#044389] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#033070] disabled:opacity-50"
+                className="flex-1 bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#262626] disabled:opacity-50"
               >
                 {saving ? "Guardando..." : "Guardar"}
               </button>
@@ -465,7 +465,7 @@ function MessageTemplatesModal({ onClose }: { onClose: () => void }) {
                     {!isEditing && (
                       <button
                         onClick={() => startEdit(t)}
-                        className="text-gray-400 hover:text-[#044389] transition-colors"
+                        className="text-gray-400 hover:text-black transition-colors"
                         title="Editar"
                       >
                         <Pencil className="h-4 w-4" />
@@ -482,7 +482,7 @@ function MessageTemplatesModal({ onClose }: { onClose: () => void }) {
                         onChange={(e) =>
                           setDrafts((prev) => ({ ...prev, [t.key]: e.target.value }))
                         }
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#044389]"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black"
                       />
                       {variables.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-2">
@@ -491,7 +491,7 @@ function MessageTemplatesModal({ onClose }: { onClose: () => void }) {
                               key={v.token}
                               type="button"
                               onClick={() => insertVariable(t.key, v.token)}
-                              className="text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-1 hover:bg-[#044389]/10 hover:text-[#044389] transition-colors"
+                              className="text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-1 hover:bg-black/10 hover:text-black transition-colors"
                             >
                               + {v.label}
                             </button>
@@ -502,7 +502,7 @@ function MessageTemplatesModal({ onClose }: { onClose: () => void }) {
                         <button
                           onClick={() => handleSave(t)}
                           disabled={saving === t.key}
-                          className="flex-1 bg-[#044389] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#033070] disabled:opacity-50"
+                          className="flex-1 bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#262626] disabled:opacity-50"
                         >
                           {saving === t.key ? "Guardando..." : "Guardar"}
                         </button>
@@ -658,14 +658,14 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
       <div className="flex justify-end gap-4 mb-4">
         <button
           onClick={() => setShowMessages(true)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-[#044389] uppercase tracking-wide hover:underline"
+          className="flex items-center gap-1.5 text-xs font-semibold text-black uppercase tracking-wide hover:underline"
         >
           <MessageSquare className="h-4 w-4" />
           Mensajes
         </button>
         <button
           onClick={() => setShowInfo(true)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-[#044389] uppercase tracking-wide hover:underline"
+          className="flex items-center gap-1.5 text-xs font-semibold text-black uppercase tracking-wide hover:underline"
         >
           <Info className="h-4 w-4" />
           Info
@@ -728,7 +728,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
                   onClick={() => setPeriod(p)}
                   className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
                     period === p
-                      ? "bg-[#044389] text-white"
+                      ? "bg-[#DC1414] text-white"
                       : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                   }`}
                 >
@@ -777,15 +777,15 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
 
       {/* ── Conteos generales ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <PFStatCard title="Pedidos totales" loading={loading} value={stats?.total} accent="#044389" />
-        <PFStatCard title="Pendientes" loading={loading} value={stats?.pending} accent="#FFAD05" />
+        <PFStatCard title="Pedidos totales" loading={loading} value={stats?.total} accent="#000000" />
+        <PFStatCard title="Pendientes" loading={loading} value={stats?.pending} accent="#DC1414" />
         <PFStatCard title="Cobrados" loading={loading} value={stats?.paid} accent="#4f46e5" />
         <PFStatCard
           title="Productos activos"
           loading={loading}
           value={stats?.activeProducts}
           sub={stats ? `${stats.totalCategories} categorías` : undefined}
-          accent="#044389"
+          accent="#000000"
         />
       </div>
 
