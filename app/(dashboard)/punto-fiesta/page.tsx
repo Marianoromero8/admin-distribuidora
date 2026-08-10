@@ -3,11 +3,12 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getPFOrders } from "@/services/pfOrderService";
 import { useRequireAdmin } from "@/lib/auth";
-import { Tab, playNotificationSound } from "./_shared";
+import { Tab, playNotificationSound, fmtMoney } from "./_shared";
 import { SummaryTab } from "./SummaryTab";
 import { OrdersTab } from "./OrdersTab";
 import { ProductsTab } from "./ProductsTab";
 import { CategoriesTab } from "./CategoriesTab";
+import { ClientsTab } from "./ClientsTab";
 import { AdsTab } from "./AdsTab";
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -17,6 +18,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "orders", label: "Pedidos" },
   { key: "products", label: "Productos" },
   { key: "categories", label: "Categorías" },
+  { key: "clients", label: "Clientes" },
   { key: "ads", label: "Anuncios" },
 ];
 
@@ -104,7 +106,7 @@ export default function PuntoFiestaPage() {
           ]);
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             new Notification("🛒 Nuevo pedido — Punto Fiesta", {
-              body: `${order.clientName} ${order.clientSurname} · $${Number(order.total).toLocaleString("es-AR")}`,
+              body: `${order.clientName} ${order.clientSurname} · ${fmtMoney(Number(order.total))}`,
               icon: "/favicon.ico",
             });
           }
@@ -138,6 +140,7 @@ export default function PuntoFiestaPage() {
       )}
       {activeTab === "products" && <ProductsTab />}
       {activeTab === "categories" && <CategoriesTab />}
+      {activeTab === "clients" && <ClientsTab />}
       {activeTab === "ads" && <AdsTab />}
 
       {/* Toasts de pedidos nuevos — siempre visibles en cualquier tab */}
@@ -156,7 +159,7 @@ export default function PuntoFiestaPage() {
                 <p className="text-sm font-semibold text-gray-800 truncate">
                   {toast.clientName} {toast.clientSurname}
                 </p>
-                <p className="text-xs text-gray-500">${toast.total.toLocaleString("es-AR")}</p>
+                <p className="text-xs text-gray-500">{fmtMoney(toast.total)}</p>
                 <button
                   onClick={() => handleToastClick(toast.id, toast.orderId)}
                   className="mt-1.5 text-xs font-semibold text-black hover:underline"

@@ -17,6 +17,7 @@ import {
   formatDate,
   formatOrderNumber,
   whatsappLink,
+  fmtMoney,
 } from "./_shared";
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
@@ -472,7 +473,7 @@ export function OrdersTab({
                         {order.clientPhone}
                       </a>
                     </td>
-                    <td className="px-4 py-3 font-medium">${Number(order.total).toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium">{fmtMoney(Number(order.total))}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[order.status]}`}
@@ -574,15 +575,18 @@ export function OrdersTab({
                           {(order.items ?? []).map((item) => (
                             <div
                               key={item.id}
-                              className="flex items-center justify-between text-sm text-gray-700 bg-white rounded px-3 py-2 border border-gray-100"
+                              className="grid items-center gap-2 text-sm text-gray-700 bg-white rounded px-3 py-2 border border-gray-100"
+                              style={{ gridTemplateColumns: "1fr 50px 130px 110px" }}
                             >
-                              <span className="font-medium">
+                              <span className="font-medium truncate">
                                 {item.product?.name ?? item.productId}
                               </span>
-                              <span className="text-gray-400">x{item.quantity}</span>
-                              <span>${Number(item.unitPrice).toFixed(2)} c/u</span>
-                              <span className="font-semibold">
-                                ${(Number(item.unitPrice) * item.quantity).toFixed(2)}
+                              <span className="text-gray-400 text-right">x{item.quantity}</span>
+                              <span className="text-right whitespace-nowrap">
+                                {fmtMoney(Number(item.unitPrice))} c/u
+                              </span>
+                              <span className="font-semibold text-right whitespace-nowrap">
+                                {fmtMoney(Number(item.unitPrice) * item.quantity)}
                               </span>
                             </div>
                           ))}
@@ -667,7 +671,7 @@ export function OrdersTab({
                     </span>
                     <span className="text-sm text-gray-500">x{item.quantity}</span>
                     <span className="text-sm font-semibold text-gray-700">
-                      ${(Number(item.unitPrice) * item.quantity).toLocaleString("es-AR")}
+                      {fmtMoney(Number(item.unitPrice) * item.quantity)}
                     </span>
                   </label>
                 );
@@ -677,11 +681,11 @@ export function OrdersTab({
             <div className="flex items-center justify-between mb-5">
               <span className="text-sm text-gray-500">Total confirmado</span>
               <span className="text-lg font-black text-gray-800">
-                $
-                {(acceptModal.order.items ?? [])
-                  .filter((i) => acceptModal.confirmedIds.has(i.id))
-                  .reduce((s, i) => s + Number(i.unitPrice) * i.quantity, 0)
-                  .toLocaleString("es-AR")}
+                {fmtMoney(
+                  (acceptModal.order.items ?? [])
+                    .filter((i) => acceptModal.confirmedIds.has(i.id))
+                    .reduce((s, i) => s + Number(i.unitPrice) * i.quantity, 0)
+                )}
               </span>
             </div>
 

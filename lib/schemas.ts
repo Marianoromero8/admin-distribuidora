@@ -275,3 +275,38 @@ export const PFOrdersApiResponseSchema = z.object({
 export type PFOrderItem = z.infer<typeof PFOrderItemSchema>;
 export type PFOrder = z.infer<typeof PFOrderSchema>;
 export type PaginatedPFOrders = z.infer<typeof PaginatedPFOrdersSchema>;
+
+// Punto Fiesta — Customers
+export const PFCustomerSchema = z.object({
+  id: z.string(),
+  dni: z.string(),
+  name: z.string(),
+  surname: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  cuil: z.string(),
+  address: z.string(),
+  firstOrderAt: z.string(),
+  lastOrderAt: z.string(),
+  ordersCount: z.number().optional(),
+  totalSpent: z.coerce.number().optional(),
+  orders: z.array(PFOrderSchema).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+
+export const PaginatedPFCustomersSchema = z.object({
+  items: z.array(PFCustomerSchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+});
+
+export const PFCustomersApiResponseSchema = z.object({
+  status: z.string(),
+  data: PaginatedPFCustomersSchema,
+});
+
+export type PFCustomer = z.infer<typeof PFCustomerSchema>;
+export type PaginatedPFCustomers = z.infer<typeof PaginatedPFCustomersSchema>;
