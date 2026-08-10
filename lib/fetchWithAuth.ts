@@ -1,4 +1,4 @@
-import { getToken } from './auth';
+import { getToken, clearAuth } from './auth';
 
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     const token = getToken();
@@ -14,6 +14,10 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     });
 
     if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+            clearAuth();
+            window.location.href = '/login';
+        }
         const error = await res.json().catch(() => ({ message: 'Request failed' }));
         throw new Error(error.message || 'Request failed');
     }
