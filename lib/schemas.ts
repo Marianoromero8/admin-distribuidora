@@ -192,6 +192,8 @@ export const PFCategorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   active: z.boolean(),
+  imageUrl: z.string().nullable(),
+  featuredOnHome: z.boolean(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

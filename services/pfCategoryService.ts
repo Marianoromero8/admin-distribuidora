@@ -18,10 +18,21 @@ export async function createPFCategory(data: { name: string; slug: string }): Pr
     return PFCategorySchema.parse(json.data);
 }
 
-export async function updatePFCategory(id: string, data: { name?: string; slug?: string; active?: boolean }): Promise<PFCategory> {
+export async function updatePFCategory(id: string, data: { name?: string; slug?: string; active?: boolean; featuredOnHome?: boolean }): Promise<PFCategory> {
     const res = await fetchWithAuth(`${BASE}/categories/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    return PFCategorySchema.parse(json.data);
+}
+
+export async function uploadPFCategoryImage(id: string, file: File): Promise<PFCategory> {
+    const form = new FormData();
+    form.append('image', file);
+    const res = await fetchWithAuth(`${BASE}/categories/${id}/image`, {
+        method: 'POST',
+        body: form,
     });
     const json = await res.json();
     return PFCategorySchema.parse(json.data);
