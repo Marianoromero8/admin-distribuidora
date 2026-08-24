@@ -1,13 +1,14 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getPFCategories,
   createPFCategory,
   updatePFCategory,
+  uploadPFCategoryImage,
   deletePFCategory,
 } from "@/services/pfCategoryService";
 import type { PFCategory } from "@/lib/schemas";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { slugify } from "./_shared";
 
@@ -20,6 +21,8 @@ export function CategoriesTab() {
   const [editingCategory, setEditingCategory] = useState<PFCategory | null>(null);
   const [form, setForm] = useState({ name: "", slug: "" });
   const [saving, setSaving] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImageId, setUploadingImageId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,6 +81,31 @@ export function CategoriesTab() {
     }
   };
 
+  const handleToggleFeaturedOnHome = async (c: PFCategory) => {
+    try {
+      await updatePFCategory(c.id, { featuredOnHome: !c.featuredOnHome });
+      setCategories((prev) =>
+        prev.map((x) => (x.id === c.id ? { ...x, featuredOnHome: !x.featuredOnHome } : x))
+      );
+    } catch (e) {
+      Swal.fire("Error", e instanceof Error ? e.message : "No se pudo actualizar", "error");
+    }
+  };
+
+  const handleImageUpload = async (categoryId: string, file: File) => {
+    setUploadingImageId(categoryId);
+    try {
+      const updated = await uploadPFCategoryImage(categoryId, file);
+      setCategories((prev) =>
+        prev.map((c) => (c.id === categoryId ? { ...c, imageUrl: updated.imageUrl } : c))
+      );
+    } catch (e) {
+      Swal.fire("Error", e instanceof Error ? e.message : "Error al subir imagen", "error");
+    } finally {
+      setUploadingImageId(null);
+    }
+  };
+
   const handleDelete = async (c: PFCategory) => {
     const result = await Swal.fire({
       title: "¿Eliminar categoría?",
@@ -123,13 +151,42 @@ export function CategoriesTab() {
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Nombre</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Slug</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-gray-600 font-medium">En home</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((c) => (
                 <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{c.name}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-9 h-9 shrink-0">
+                        {c.imageUrl ? (
+                          <img
+                            src={c.imageUrl}
+                            alt={c.name}
+                            className="w-9 h-9 object-cover rounded border border-gray-100"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-300">
+                            <ImageIcon className="h-4 w-4" />
+                          </div>
+                        )}
+                        <button
+                          onClick={() => {
+                            imageInputRef.current?.click();
+                            imageInputRef.current?.setAttribute("data-id", c.id);
+                          }}
+                          disabled={uploadingImageId === c.id}
+                          title="Cambiar imagen"
+                          className="absolute -bottom-1 -right-1 bg-white border border-gray-200 rounded-full p-0.5 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        >
+                          <Pencil className="h-2.5 w-2.5 text-gray-500" />
+                        </button>
+                      </div>
+                      <p className="font-medium text-gray-800">{c.name}</p>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-gray-400 font-mono text-xs">{c.slug}</td>
                   <td className="px-4 py-3">
                     <button
@@ -137,6 +194,14 @@ export function CategoriesTab() {
                       className={`px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${c.active ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-600 hover:bg-red-200"}`}
                     >
                       {c.active ? "Activa" : "Inactiva"}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleToggleFeaturedOnHome(c)}
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${c.featuredOnHome ? "bg-amber-100 text-amber-700 hover:bg-amber-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+                    >
+                      {c.featuredOnHome ? "⭐ Sí" : "— No"}
                     </button>
                   </td>
                   <td className="px-4 py-3">
@@ -223,6 +288,20 @@ export function CategoriesTab() {
           </div>
         </div>
       )}
+
+      {/* Hidden image input */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          const id = imageInputRef.current?.getAttribute("data-id");
+          if (file && id) handleImageUpload(id, file);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }

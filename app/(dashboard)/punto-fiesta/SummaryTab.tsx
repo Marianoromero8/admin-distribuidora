@@ -14,6 +14,7 @@ import { X, Info, AlertTriangle, Pencil, MessageSquare } from "lucide-react";
 import Swal from "sweetalert2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fmtMoney } from "./_shared";
 
 interface PFStats {
   total: number;
@@ -623,9 +624,6 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
     loadFinancial();
   }, [refreshSignal, loadFinancial]);
 
-  const fmt = (n: number) =>
-    n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
-
   return (
     <div>
       {!waConnected && (
@@ -688,7 +686,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
               <Skeleton className="h-8 w-32" />
             ) : (
               <p className="text-3xl font-bold text-indigo-700">
-                {fmt(financial?.paidTotal ?? 0)}
+                {fmtMoney(financial?.paidTotal ?? 0)}
               </p>
             )}
             <p className="text-xs text-indigo-400 mt-1">Pedidos marcados como cobrados</p>
@@ -706,7 +704,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
               <Skeleton className="h-8 w-32" />
             ) : (
               <p className="text-3xl font-bold text-amber-600">
-                {fmt(financial?.acceptedTotal ?? 0)}
+                {fmtMoney(financial?.acceptedTotal ?? 0)}
               </p>
             )}
             <p className="text-xs text-amber-400 mt-1">Pedidos aceptados pendientes de pago</p>
@@ -751,7 +749,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
                   Cobrados
                 </p>
                 <p className="text-2xl font-bold text-indigo-700">
-                  {fmt(financial?.periodPaidAmount ?? 0)}
+                  {fmtMoney(financial?.periodPaidAmount ?? 0)}
                 </p>
                 <p className="text-xs text-indigo-400 mt-0.5">
                   {financial?.periodPaidCount ?? 0} pedido
@@ -763,7 +761,7 @@ export function SummaryTab({ refreshSignal }: { refreshSignal: number }) {
                   Por cobrar
                 </p>
                 <p className="text-2xl font-bold text-amber-600">
-                  {fmt(financial?.periodAcceptedAmount ?? 0)}
+                  {fmtMoney(financial?.periodAcceptedAmount ?? 0)}
                 </p>
                 <p className="text-xs text-amber-400 mt-0.5">
                   {financial?.periodAcceptedCount ?? 0} pedido

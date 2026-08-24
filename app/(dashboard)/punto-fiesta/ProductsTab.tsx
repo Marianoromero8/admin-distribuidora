@@ -11,6 +11,7 @@ import { getPFCategories } from "@/services/pfCategoryService";
 import type { PFProduct, PFCategory } from "@/lib/schemas";
 import { Plus, Pencil, Trash2, ImageIcon } from "lucide-react";
 import Swal from "sweetalert2";
+import { fmtMoney } from "./_shared";
 
 // ─── Tab: Products ────────────────────────────────────────────────────────────
 
@@ -302,7 +303,7 @@ export function ProductsTab() {
                         className="cursor-pointer font-medium text-gray-700 px-2 py-0.5 rounded hover:bg-gray-100 transition-colors"
                         title="Click para editar precio"
                       >
-                        ${Number(p.price).toFixed(2)}
+                        {fmtMoney(Number(p.price))}
                       </span>
                     )}
                   </td>
